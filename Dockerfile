@@ -20,11 +20,12 @@ SHELL ["/bin/bash", "-c"]
 RUN echo "source activate demo" > ~/.bashrc
 ENV PATH /opt/conda/envs/demo/bin:$PATH
 
-# Copia el contenido del proyecto a la imagen del contenedor
-COPY . /app
 
 # Exponer el puerto 8000 para FastAPI
 EXPOSE 8000
+
+# Copia el contenido del proyecto a la imagen del contenedor
+COPY . /app
 
 # Comando para correr la aplicación usando Uvicorn
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
