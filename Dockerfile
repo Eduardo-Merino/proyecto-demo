@@ -1,31 +1,25 @@
-# Usa una imagen oficial de Python 3.12
-FROM python:3.12-slim
+# Utilizamos una imagen base de continuumio/miniconda para usar conda como manejador de entornos
+FROM continuumio/miniconda3:latest
 
-# Establece el directorio de trabajo dentro del contenedor
-WORKDIR /app
+# Copiamos el archivo environment.yml al contenedor
+COPY environment.yml .
 
-# Copia el archivo de dependencias environment.yml al contenedor
-COPY enviroment.yml /app/enviroment.yml
+# Instalamos las dependencias desde el archivo environment.yml
+RUN conda env create -f environment.yml
 
-# Instala conda y crea el entorno desde el archivo environment.yml
-RUN apt-get update && apt-get install -y wget && \
-    wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh && \
-    bash miniconda.sh -b -p /opt/conda && \
-    rm miniconda.sh && \
-    /opt/conda/bin/conda env create -f /app/enviroment.yml && \
-    /opt/conda/bin/conda clean -afy
+# Activamos el entorno
+SHELL ["conda", "run", "-n", "demo", "/bin/bash", "-c"]
 
-# Activa el entorno creado
-SHELL ["/bin/bash", "-c"]
-RUN echo "source activate demo" > ~/.bashrc
+# Copiamos todo el contenido del proyecto al contenedor
+RUN mkdir /app
+WORKDIR /app/
+COPY ./app /app
+
+# Establecemos el entorno como base para ejecutar los comandos
 ENV PATH /opt/conda/envs/demo/bin:$PATH
 
-
-# Exponer el puerto 8000 para FastAPI
+# Exponemos el puerto 8000 para que la API esté disponible en este puerto
 EXPOSE 8000
 
-# Copia el contenido del proyecto a la imagen del contenedor
-COPY . /app
-
-# Comando para correr la aplicación usando Uvicorn
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+# Comando para correr la aplicación usando el entorno conda
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--log-level", "debug"]
