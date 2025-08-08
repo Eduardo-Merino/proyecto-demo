@@ -5,12 +5,12 @@ from routers.stocks.stocks_endpoints import router as router_stocks
 
 app = FastAPI(
     title="DEMO API",
-    description="API demo para clase"
+    description="API demo para clase de promación de aplicaciones web",
     )
 
 @app.get("/")
 async def root():
-    return {"message": "Bienvenidos a la API"}
+    return {"message": "Bienvenidos a la API, compañeros !"}
 
 app.include_router(router_portfolios)
 app.include_router(router_stocks)
